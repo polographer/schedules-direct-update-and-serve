@@ -14,42 +14,6 @@ The Docker image is published to the [GitHub Container Registry](https://ghcr.io
 - Periodically updates the listings data
 - Runs in a Docker container for simple deployment
 
-## Quick Start
-
-### First run (interactive setup)
-
-Run the container interactively to configure your lineups:
-
-```bash
-docker compose run --rm -it xmltv
-```
-
-This runs the `tv_grab_zz_sdjson` configuration wizard where you:
-1. Enter your Schedules Direct username and password
-2. Add a lineup — type `add`, enter your country (e.g., `USA`), then your zip code (e.g., `20171`), and pick a lineup from the list
-3. Select mode (`lineup`) and choose which lineups to use
-4. The config file is saved to `/root/.xmltv/` (persisted via volume)
-
-> **Note:** Lineups must be added through the grabber wizard, not the Schedules Direct website. The website lineup management does not sync with the JSON API.
-
-### Normal run (background)
-
-After the first run, start the service in the background:
-
-```bash
-docker compose up -d
-```
-
-## Usage
-
-Once running, the XMLTV file is available at:
-
-```bash
-http://your-server-ip:51969/tvxml.xml
-```
-
-You can use this URL in your media center software (such as Threadfin, Plex, Emby, Jellyfin, TVHeadend, etc.) as the source for your TV guide data.
-
 ## Configuration
 
 ### Docker Compose
@@ -86,6 +50,42 @@ volumes:
 The Docker Compose configuration creates two volumes:
 - `xmltv_data` — stores the fetched XMLTV data (`/var/www/html`)
 - `xmltv_config` — stores the grabber config and cache (`/root/.xmltv`)
+
+## Quick Start
+
+### First run (interactive setup)
+
+Run the container interactively to configure your lineups:
+
+```bash
+docker compose run --rm -it xmltv
+```
+
+This runs the `tv_grab_zz_sdjson` configuration wizard where you:
+1. Enter your Schedules Direct username and password
+2. Add a lineup — type `add`, enter your country (e.g., `USA`), then your zip code (e.g., `20171`), and pick a lineup from the list
+3. Select mode (`lineup`) and choose which lineups to use
+4. The config file is saved to `/root/.xmltv/` (persisted via volume)
+
+> **Note:** Lineups must be added through the grabber wizard, not the Schedules Direct website. The website lineup management does not sync with the JSON API.
+
+### Normal run (background)
+
+After the first run, start the service in the background:
+
+```bash
+docker compose up -d
+```
+
+## Usage
+
+Once running, the XMLTV file is available at:
+
+```bash
+http://your-server-ip:51969/tvxml.xml
+```
+
+You can use this URL in your media center software (such as Threadfin, Plex, Emby, Jellyfin, TVHeadend, etc.) as the source for your TV guide data.
 
 ## Troubleshooting
 
