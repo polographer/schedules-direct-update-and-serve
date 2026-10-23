@@ -1,46 +1,33 @@
 #!/bin/bash
 
+XMLTV_CONFIG="$HOME/.xmltv/tv_grab_zz_sdjson.conf"
+
 # Store environment variables for cron runs
 printenv > /etc/environment
-crontab /etc/cron.d/tvgrab-cron
 
-# Start cron
-service cron start
-
-# Create the base configuration
-cat > /var/www/html/tv_grab_zz_sdjson.conf << EOF
-cache=/var/www/html/tv_grab_zz_sdjson.cache
-channel-id-format=default
-previously-shown-format=date
-username=${SD_USERNAME}
-password=${SD_PASSWORD}
-mode=lineup
-EOF
-
-# Add lineups from environment variable
-# If SD_LINEUPS is not set, use default lineups
-if [ -z "${SD_LINEUPS}" ]; then
-  # Default lineups if none specified
-  DEFAULT_LINEUPS="USA-0000001-CUSTOM,USA-DITV505-X,USA-MI21464-X,USA-YOUTUBE-X"
-  echo "No lineups specified, using defaults: ${DEFAULT_LINEUPS}"
-  SD_LINEUPS="${DEFAULT_LINEUPS}"
+# ------------------------------------------------------------------
+# First-run: interactive configuration
+# ------------------------------------------------------------------
+if [ ! -f "${XMLTV_CONFIG}" ]; then
+  echo "No configuration found. Running initial setup..."
+  echo ""
+  /usr/bin/tv_grab_zz_sdjson --configure </dev/null
+  echo ""
+  echo "Configuration complete. Start the service with:"
+  echo "  docker compose up -d"
+  exit 0
 fi
 
-# Add number of days to fetch guide data for
-fetch_days=${SD_FETCH_DAYS}
+# ------------------------------------------------------------------
+# Normal operation: fetch schedules and serve via nginx
+# ------------------------------------------------------------------
 
-# Process comma-separated lineup list
-IFS=',' read -ra LINEUP_ARRAY <<< "${SD_LINEUPS}"
-for lineup in "${LINEUP_ARRAY[@]}"; do
-  # Trim whitespace
-  lineup=$(echo "${lineup}" | xargs)
-  if [ ! -z "${lineup}" ]; then
-    echo "Adding lineup: ${lineup}"
-    echo "lineup=${lineup}" >> /var/www/html/tv_grab_zz_sdjson.conf
-  fi
-done
+# Clean cache so we get fresh data
+rm -f /var/www/html/tv_grab_zz_sdjson.cache || true
 
-rm -f /var/www/html/tv_grab_zz_sdjson.cache || echo "No cache file to clean"
+# Start cron
+crontab /etc/cron.d/tvgrab-cron
+service cron start
 
 # Initial run of the grab command
 echo "$(date '+%Y-%m-%d %H:%M:%S') - [INITIAL SYNC] Starting Schedules Direct data fetch..."
@@ -48,7 +35,7 @@ echo "$(date '+%Y-%m-%d %H:%M:%S') - [INITIAL SYNC] Starting Schedules Direct da
 echo "$(date '+%Y-%m-%d %H:%M:%S') - [INITIAL SYNC] Completed Schedules Direct data fetch"
 
 # Set up log rotation for cron.log
-cat > /etc/logrotate.d/cron << EOF
+cat > /etc/logrotate.d/cron << 'EOF'
 /var/log/cron.log {
     daily
     rotate 7

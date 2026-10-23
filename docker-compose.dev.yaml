@@ -1,0 +1,20 @@
+# Development Docker Compose
+# Usage: docker compose -f docker-compose.dev.yaml up
+#
+# Mounts local scripts so changes are reflected without rebuilding.
+# Uses a separate port (51970) and volumes to avoid conflicts with production.
+
+services:
+  xmltv:
+    build: .
+    volumes:
+      - ./start.sh:/start.sh
+      - ./fetch_json.sh:/fetch_json.sh
+      - xmltv_data_dev:/var/www/html
+      - xmltv_config_dev:/root/.xmltv
+    ports:
+      - "51970:80"
+
+volumes:
+  xmltv_data_dev:
+  xmltv_config_dev:

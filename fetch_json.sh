@@ -14,7 +14,7 @@ rm -f "${tmp_output}"
 
 # Capture both stdout and stderr from tv_grab_zz_sdjson
 stderr_tmp=$(mktemp)
-/usr/bin/tv_grab_zz_sdjson --config-file /var/www/html/tv_grab_zz_sdjson.conf --output "${tmp_output}" --days "${SD_FETCH_DAYS}" 2>"${stderr_tmp}"
+/usr/bin/tv_grab_zz_sdjson --config-file "$HOME/.xmltv/tv_grab_zz_sdjson.conf" --output "${tmp_output}" --days "${SD_FETCH_DAYS}" 2>"${stderr_tmp}"
 rc=$?
 
 if [ ${rc} -eq 0 ]; then

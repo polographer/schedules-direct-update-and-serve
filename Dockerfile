@@ -1,11 +1,13 @@
 FROM debian:trixie-slim
-RUN apt-get update
-RUN apt-get upgrade -y
-RUN apt-get install -y bash
-RUN apt-get install -y xmltv-util
-RUN apt-get install -y nginx python3
-# Install cron in addition to your other packages
-RUN apt-get update && apt-get install -y cron
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    bash \
+    cron \
+    curl \
+    nginx \
+    python3 \
+    xmltv-util \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set default values
 ENV SD_FETCH_DAYS 2

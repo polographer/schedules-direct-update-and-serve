@@ -1,19 +1,18 @@
-version: '3.8'
-
 services:
   xmltv:
     image: ghcr.io/polographer/schedules-direct-update-and-serve:latest
     environment:
-      - SD_USERNAME=${SCHEDULES_DIRECT_USERNAME}
-      - SD_PASSWORD=${SCHEDULES_DIRECT_PASSWORD}
-      - SD_LINEUPS=USA-0000001-CUSTOM,USA-DITV505-X,USA-MI21464-X,USA-YOUTUBE-X
       - TZ=America/New_York
     container_name: xmltv
     ports:
       - "51969:80"
     volumes:
       - xmltv_data:/var/www/html
+      - xmltv_config:/root/.xmltv
     restart: unless-stopped
 
 volumes:
   xmltv_data:
+    name: xmltv_data
+  xmltv_config:
+    name: xmltv_config
