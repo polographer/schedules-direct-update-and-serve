@@ -17,4 +17,6 @@ services:
 
 volumes:
   xmltv_data_dev:
+    name: xmltv_data_dev
   xmltv_config_dev:
+    name: xmltv_config_dev

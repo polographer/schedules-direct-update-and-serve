@@ -21,10 +21,7 @@ The Docker image is published to the [GitHub Container Registry](https://ghcr.io
 Run the container interactively to configure your lineups:
 
 ```bash
-docker run --rm -it \
-  -v xmltv_data:/var/www/html \
-  -v xmltv_config:/root/.xmltv \
-  ghcr.io/polographer/schedules-direct-update-and-serve:latest
+docker compose run --rm -it xmltv
 ```
 
 This runs the `tv_grab_zz_sdjson` configuration wizard where you:
@@ -43,14 +40,25 @@ After the first run, start the service in the background:
 docker compose up -d
 ```
 
-Or create a `docker-compose.yaml`:
+## Usage
+
+Once running, the XMLTV file is available at:
+
+```bash
+http://your-server-ip:51969/tvxml.xml
+```
+
+You can use this URL in your media center software (such as Threadfin, Plex, Emby, Jellyfin, TVHeadend, etc.) as the source for your TV guide data.
+
+## Configuration
+
+### Docker Compose
 
 ```yaml
 services:
   xmltv:
     image: ghcr.io/polographer/schedules-direct-update-and-serve:latest
     environment:
-      - SD_LINEUPS=USA-0000001-CUSTOM,USA-DITV505-X,USA-MI21464-X,USA-YOUTUBE-X
       - TZ=America/New_York
     container_name: xmltv
     ports:
@@ -67,33 +75,13 @@ volumes:
     name: xmltv_config
 ```
 
-## Usage
-
-Once running, the XMLTV file is available at:
-
-```bash
-http://your-server-ip:51969/tvxml.xml
-```
-
-You can use this URL in your media center software (such as Threadfin, Plex, Emby, Jellyfin, TVHeadend, etc.) as the source for your TV guide data.
-
-## How It Works
-
-- The container runs a cron job that regularly updates the TV listings data
-- `tv_grab_zz_sdjson` tool fetches data from Schedules Direct in JSON format
-- The data is converted to XMLTV format
-- Nginx serves the XMLTV file via HTTP on port 51969
-
-## Environment Variables
+### Environment Variables
 
 | Variable | Description |
 |----------|-------------|
-| SD_USERNAME | Your Schedules Direct username (required for first run) |
-| SD_PASSWORD | Your Schedules Direct password (required for first run) |
-| SD_FETCH_DAYS | The number of days to fetch guide data for (default: 2) |
 | TZ | Timezone (default: UTC. Since it runs every day at midnight, choose a TZ where that is the time you want it to run.) |
 
-## Volumes
+### Volumes
 
 The Docker Compose configuration creates two volumes:
 - `xmltv_data` — stores the fetched XMLTV data (`/var/www/html`)
@@ -101,31 +89,24 @@ The Docker Compose configuration creates two volumes:
 
 ## Troubleshooting
 
-### Config file already exists — skip interactive setup
+### Re-run the interactive setup
 
-If the container uses an existing volume from a previous run, it will skip the interactive wizard. To re-run:
+If you need to change your lineups or credentials, remove the config file and re-run the wizard:
 
 ```bash
 # Remove the config file from the volume
-docker run --rm -it \
-  -v xmltv_config:/root/.xmltv \
-  debian:trixie-slim rm -f /root/.xmltv/tv_grab_zz_sdjson.conf
+docker compose run --rm -it debian:trixie-slim rm -f /root/.xmltv/tv_grab_zz_sdjson.conf
 
-# Then run the interactive setup
-docker run --rm -it \
-  -v xmltv_data:/var/www/html \
-  -v xmltv_config:/root/.xmltv \
-  ghcr.io/polographer/schedules-direct-update-and-serve:latest
+# Re-run the interactive setup
+docker compose run --rm -it xmltv
 ```
 
 Or remove the volumes entirely for a clean slate:
 
 ```bash
+docker compose down
 docker volume rm xmltv_data xmltv_config
-docker run --rm -it \
-  -v xmltv_data:/var/www/html \
-  -v xmltv_config:/root/.xmltv \
-  ghcr.io/polographer/schedules-direct-update-and-serve:latest
+docker compose run --rm -it xmltv
 ```
 
 ### "Lineup X in the current configuration is not enabled on your account"
@@ -133,10 +114,7 @@ docker run --rm -it \
 Re-run the interactive setup to add the correct lineups:
 
 ```bash
-docker run --rm -it \
-  -v xmltv_data:/var/www/html \
-  -v xmltv_config:/root/.xmltv \
-  ghcr.io/polographer/schedules-direct-update-and-serve:latest
+docker compose run --rm -it xmltv
 ```
 
 ### Container exits with error
@@ -152,14 +130,13 @@ Common causes:
 - Lineup IDs don't match your account
 - Schedules Direct API is down
 
-## Developer
+## Development
 
 ### Development Setup
 
 Build and run locally:
 
 ```bash
-docker build -t schedules-direct-dev:latest .
 docker compose -f docker-compose.dev.yaml up
 ```
 
@@ -168,6 +145,12 @@ This:
 - Mounts `start.sh` and `fetch_json.sh` for live editing
 - Exposes port **51970** (instead of 51969)
 - Uses separate volumes so it doesn't conflict with production
+
+### First run in development
+
+```bash
+docker compose -f docker-compose.dev.yaml run --rm -it xmltv
+```
 
 ### Making Changes
 
