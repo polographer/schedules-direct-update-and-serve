@@ -11,7 +11,7 @@ printenv > /etc/environment
 if [ ! -f "${XMLTV_CONFIG}" ]; then
   echo "No configuration found. Running initial setup..."
   echo ""
-  /usr/bin/tv_grab_zz_sdjson --configure </dev/null
+  /usr/bin/tv_grab_zz_sdjson --configure
   echo ""
   echo "Configuration complete. Start the service with:"
   echo "  docker compose up -d"
