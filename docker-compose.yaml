@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   xmltv:
-    image: mrorbitman/schedules-direct-update-and-serve:latest
+    image: ghcr.io/polographer/schedules-direct-update-and-serve:latest
     environment:
       - SD_USERNAME=${SCHEDULES_DIRECT_USERNAME}
       - SD_PASSWORD=${SCHEDULES_DIRECT_PASSWORD}

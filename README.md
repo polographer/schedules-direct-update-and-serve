@@ -2,7 +2,9 @@
 
 This project provides a Docker container that automatically fetches TV schedule data from [Schedules Direct](https://www.schedulesdirect.org/) on a schedule, converts it to XMLTV format, and serves it via HTTP for use with various home media applications.
 
-This is particularly useful to connect Schedules Direct with [Threadfin](https://github.com/Threadfin/Threadfin)
+This is particularly useful to connect Schedules Direct with [Threadfin](https://github.com/Threadfin/Threadfin).
+
+The Docker image is published to the [GitHub Container Registry](https://ghcr.io/polographer/schedules-direct-update-and-serve).
 
 ## Features
 
@@ -12,38 +14,42 @@ This is particularly useful to connect Schedules Direct with [Threadfin](https:/
 - Periodically updates the listings data
 - Runs in a Docker container for simple deployment
 
-## Quick Start - Docker Compose
+## Quick Start
 
-Copy the `docker-compose.yaml` file from this project and deploy it using your favorite docker deployment software (such as Dockge, Portainer, or just `docker compose up -d`)
+Deploy with Docker Compose. Create a `docker-compose.yaml` with the following:
 
-Set the environment variables for your setup as described below.
+```yaml
+services:
+  xmltv:
+    image: ghcr.io/polographer/schedules-direct-update-and-serve:latest
+    environment:
+      - SD_USERNAME=${SCHEDULES_DIRECT_USERNAME}
+      - SD_PASSWORD=${SCHEDULES_DIRECT_PASSWORD}
+      - SD_LINEUPS=USA-0000001-CUSTOM,USA-DITV505-X,USA-MI21464-X,USA-YOUTUBE-X
+      - TZ=America/New_York
+    container_name: xmltv
+    ports:
+      - "51969:80"
+    volumes:
+      - xmltv_data:/var/www/html
+    restart: unless-stopped
 
-## Prerequisites
+volumes:
+  xmltv_data:
+```
 
-- Docker and Docker Compose
-- Schedules Direct subscription (username and password)
+Create a `.env` file with your Schedules Direct credentials:
 
-## Setup
+```bash
+SCHEDULES_DIRECT_USERNAME=your_username
+SCHEDULES_DIRECT_PASSWORD=your_password
+```
 
-1. Clone this repository:
+Then run:
 
-   ```bash
-   git clone https://github.com/johnpc/schedules-direct-update-and-serve.git
-   cd schedules-direct-update-and-serve
-   ```
-
-2. Create a `.env` file with your Schedules Direct credentials:
-
-   ```bash
-   SCHEDULES_DIRECT_USERNAME=your_username
-   SCHEDULES_DIRECT_PASSWORD=your_password
-   ```
-
-3. Start the container:
-
-   ```bash
-   docker-compose up -d
-   ```
+```bash
+docker compose up -d
+```
 
 ## Configuration
 
