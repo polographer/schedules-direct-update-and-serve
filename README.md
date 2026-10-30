@@ -44,6 +44,7 @@ volumes:
 | Variable | Description |
 |----------|-------------|
 | TZ | Timezone (default: UTC. Since it runs every day at midnight, choose a TZ where that is the time you want it to run.) |
+| SD_CRON_SCHEDULE | Cron schedule for fetching data (default: `0 0 * * *` — midnight daily). Format: `minute hour dom month dow` |
 
 ### Volumes
 

@@ -3,6 +3,7 @@ services:
     image: ghcr.io/polographer/schedules-direct-update-and-serve:latest
     environment:
       - TZ=America/New_York
+      - SD_CRON_SCHEDULE=0 0 * * *
     container_name: xmltv
     ports:
       - "51969:80"

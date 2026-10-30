@@ -1,6 +1,7 @@
 #!/bin/bash
 
 XMLTV_CONFIG="$HOME/.xmltv/tv_grab_zz_sdjson.conf"
+CRON_SCHEDULE="${SD_CRON_SCHEDULE:-0 0 * * *}"
 
 # Store environment variables for cron runs
 printenv > /etc/environment
@@ -25,8 +26,8 @@ fi
 # Clean cache so we get fresh data
 rm -f /var/www/html/tv_grab_zz_sdjson.cache || true
 
-# Start cron
-crontab /etc/cron.d/tvgrab-cron
+# Start cron with configurable schedule
+echo "${CRON_SCHEDULE} /fetch_json.sh > /proc/1/fd/1 2>/proc/1/fd/2" | crontab -
 service cron start
 
 # Initial run of the grab command
